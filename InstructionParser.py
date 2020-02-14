@@ -74,6 +74,30 @@ class DTypeInstruction(BaseInstruction):
         if operator == 'xori':
             return operator, (operands[0], operands[1], operands[2])
 
+class D2TypeInstruction(BaseInstruction):
+    def __init__(self):
+        D2TypeRegex = r'(\w+)\s+(R\d+)\W\s+(\d+)\W(R\d+)\W' #Change the regex
+        #r'(\w+)\s+(R\d+)\W\s+(\d+)\(R\d+\)'
+        super(D2TypeInstruction, self).__init__(D2TypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(D2TypeInstruction, self).parseInstr(instr)
+        if operator == 'lwz':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'stw':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'stwu':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'lhz':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'lha':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'sth':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'lbz':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'stb':
+            return operator, (operands[0], operands[2], operands[1])
 
 class XSTypeInstruction(BaseInstruction):
     def __init__(self):
@@ -92,7 +116,8 @@ class InstructionParser:
             'XO-TYPE': XOTypeInstruction,
             'X-TYPE': XTypeInstruction,
             'D-TYPE': DTypeInstruction,
-            'XS-TYPE': XSTypeInstruction
+            'XS-TYPE': XSTypeInstruction,
+            'D2-TYPE': D2TypeInstruction            
 
         }
 
@@ -159,6 +184,8 @@ class InstructionParser:
             instrFieldSizes = (6, 5, 5, 16)
         if instrType == 'XS-TYPE':
             instrFieldSizes = (6, 5, 5, 5, 9, 1, 1)
+        if instrType == 'D2-TYPE':
+            instrFieldSizes = (6, 5, 5, 16)
 
         opcode = self.instrLookup.opcode(operator)
         convertedOpcode = formatFunc(opcode, instrFieldSizes[0])

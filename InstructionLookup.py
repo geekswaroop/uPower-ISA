@@ -23,6 +23,16 @@ class InstructionLookup:
             },
             'XS-TYPE': {
                 'sradi': 31
+            },
+            'D2-TYPE': {
+                'lwz': 32,
+                'stw': 36,
+                'stwu': 37,
+                'lhz': 40,
+                'lha': 42,
+                'sth': 44,
+                'lbz': 34,
+                'stb': 38
             }
 
         }

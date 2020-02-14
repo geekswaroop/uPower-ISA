@@ -1,32 +1,30 @@
 class InstructionLookup:
     def __init__(self):
         self.opcodeDict = {
-        	'R-TYPE': {
-        		'add': 0,
-        		'and': 1,
-        		'or': 2,
-        		'sub': 3,
-        		'sgt': 14,
-        		'slt': 13,
-                'mult': 17
-        	},
-        	'I-TYPE': {
-        		'addi': 4,
-        		'andi': 5,
-        		'ori': 6,
-        		'subi': 7,
-        		'lw': 10,
-        		'sw': 11,
-        		'beq': 9,
-        		'bne': 13,
-        		'blt': 14,
-        		'bgt': 15
-        	},
-        	'J-TYPE': {
-        		'j': 16,
-        		'jal': 18,
-        		'jr': 19
-        	}
+            'XO-TYPE': {
+                'add': 31,
+                'subf': 31
+            },
+            'X-TYPE': {
+                'and': 31,
+                'nand': 31,
+                'or': 31,
+                'xor': 31,
+                'sld': 31,
+                'srd': 31,
+                'srad': 31
+            },
+            'D-TYPE': {
+                'addi': 14,
+                'addis': 15,
+                'andi': 28,
+                'ori': 24,
+                'xori': 26
+            },
+            'XS-TYPE': {
+                'sradi': 31
+            }
+
         }
 
     def type(self, operator):

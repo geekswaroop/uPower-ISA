@@ -74,10 +74,11 @@ class DTypeInstruction(BaseInstruction):
         if operator == 'xori':
             return operator, (operands[0], operands[1], operands[2])
 
+
 class D2TypeInstruction(BaseInstruction):
     def __init__(self):
-        D2TypeRegex = r'(\w+)\s+(R\d+)\W\s+(\d+)\W(R\d+)\W' #Change the regex
-        #r'(\w+)\s+(R\d+)\W\s+(\d+)\(R\d+\)'
+        D2TypeRegex = r'(\w+)\s+(R\d+)\W\s+(\d+)\W(R\d+)\W'  # Change the regex
+        # r'(\w+)\s+(R\d+)\W\s+(\d+)\(R\d+\)'
         super(D2TypeInstruction, self).__init__(D2TypeRegex)
 
     def parseInstr(self, instr):
@@ -99,6 +100,7 @@ class D2TypeInstruction(BaseInstruction):
         if operator == 'stb':
             return operator, (operands[0], operands[2], operands[1])
 
+
 class XSTypeInstruction(BaseInstruction):
     def __init__(self):
         XSTypeRegex = r'(\w+)\s+(R\d+)\W\s+(R\d+)\W\s+(\d+)'
@@ -110,6 +112,19 @@ class XSTypeInstruction(BaseInstruction):
             return operator, (operands[1], operands[0], operands[2], '413', '0', '0')
 
 
+class DSTypeInstruction(BaseInstruction):
+    def __init__(self):
+        DSTypeRegex = r'(\w+)\s+(R\d+)\W\s+(\d+)\W(R\d+)\W'
+        super(DSTypeInstruction, self).__init__(DSTypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(DSTypeInstruction, self).parseInstr(instr)
+        if operator == 'ld':
+            return operator, (operands[0], operands[2], operands[1], '0')
+        if operator == 'std':
+            return operator, (operands[0], operands[2], operands[1], '0')
+
+
 class InstructionParser:
     def __init__(self, labelsMap={}):
         self.instrObjMap = {
@@ -117,7 +132,8 @@ class InstructionParser:
             'X-TYPE': XTypeInstruction,
             'D-TYPE': DTypeInstruction,
             'XS-TYPE': XSTypeInstruction,
-            'D2-TYPE': D2TypeInstruction            
+            'D2-TYPE': D2TypeInstruction,
+            'DS-TYPE': DSTypeInstruction
 
         }
 
@@ -186,6 +202,8 @@ class InstructionParser:
             instrFieldSizes = (6, 5, 5, 5, 9, 1, 1)
         if instrType == 'D2-TYPE':
             instrFieldSizes = (6, 5, 5, 16)
+        if instrType == 'DS-TYPE':
+            instrFieldSizes = (6, 5, 5, 14, 2)
 
         opcode = self.instrLookup.opcode(operator)
         convertedOpcode = formatFunc(opcode, instrFieldSizes[0])

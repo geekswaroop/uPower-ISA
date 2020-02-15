@@ -57,7 +57,7 @@ class Assembler(object):
         outlines = map(lambda line: parser.convert(line, format='binary'), lines)
 
         with open(self.outfilename, 'w') as of:
-            of.write('v2.0 raw\n')
+            of.write('v0.1 raw\n')
             for outline in outlines:
                 of.write(outline)
                 of.write("\n")

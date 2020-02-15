@@ -33,6 +33,10 @@ class InstructionLookup:
                 'sth': 44,
                 'lbz': 34,
                 'stb': 38
+            },
+            'DS-TYPE': {
+                'ld': 58,
+                'std': 62
             }
 
         }

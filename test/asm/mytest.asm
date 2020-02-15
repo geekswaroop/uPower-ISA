@@ -1,4 +1,3 @@
-
 add R1, R4, R5
 subf R6, R7, R8
 and R1, R4, R5
@@ -14,3 +13,4 @@ ori R1, R4, 5
 xori R11, R14, 15
 sradi R11, R14, 5
 lwz R1, 2(R3)
+ld R12, 32(R5)

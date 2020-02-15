@@ -14,3 +14,4 @@ xori R11, R14, 15
 sradi R11, R14, 5
 lwz R1, 2(R3)
 ld R12, 32(R5)
+rlwinm R11, R14, 5, 6, 7

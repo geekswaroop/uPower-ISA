@@ -125,6 +125,17 @@ class DSTypeInstruction(BaseInstruction):
             return operator, (operands[0], operands[2], operands[1], '0')
 
 
+class MTypeInstruction(BaseInstruction):
+    def __init__(self):
+        MTypeRegex = r'(\w+)\s+(R\d+)\W\s+(R\d+)\W\s+(\d+)\W\s+(\d+)\W\s+(\d+)'
+        super(MTypeInstruction, self).__init__(MTypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(MTypeInstruction, self).parseInstr(instr)
+        if operator == 'rlwinm':
+            return operator, (operands[1], operands[0], operands[2], operands[3], operands[4], '0')
+
+
 class InstructionParser:
     def __init__(self, labelsMap={}):
         self.instrObjMap = {
@@ -133,7 +144,8 @@ class InstructionParser:
             'D-TYPE': DTypeInstruction,
             'XS-TYPE': XSTypeInstruction,
             'D2-TYPE': D2TypeInstruction,
-            'DS-TYPE': DSTypeInstruction
+            'DS-TYPE': DSTypeInstruction,
+            'M-TYPE': MTypeInstruction
 
         }
 
@@ -204,6 +216,8 @@ class InstructionParser:
             instrFieldSizes = (6, 5, 5, 16)
         if instrType == 'DS-TYPE':
             instrFieldSizes = (6, 5, 5, 14, 2)
+        if instrType == 'M-TYPE':
+            instrFieldSizes = (6, 5, 5, 5, 5, 5, 1)
 
         opcode = self.instrLookup.opcode(operator)
         convertedOpcode = formatFunc(opcode, instrFieldSizes[0])

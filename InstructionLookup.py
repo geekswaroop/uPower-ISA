@@ -37,6 +37,9 @@ class InstructionLookup:
             'DS-TYPE': {
                 'ld': 58,
                 'std': 62
+            },
+            'M-TYPE': {
+                'rlwinm': 21
             }
 
         }

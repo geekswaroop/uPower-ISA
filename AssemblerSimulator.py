@@ -187,3 +187,145 @@ if __name__ == "__main__":
 
     print labelsMap
     print initializedMap
+
+    def printregs():
+        for i in range(0, 8):
+            lineo = ''
+            for j in range(0, 4):
+                lineo += 'R' + str(i + (j * 8)) + ':' + str(registers['R' + str(i + (j * 8))]) + '\t\t'
+            print lineo
+        print "\n"
+
+    registers = {}  # set of registers
+
+    C7 = '0000'  # Compare register's last 4 bits
+
+    for i in range(0, 32):
+        registers['R' + str(i)] = 0
+
+    printregs()
+
+    i = 0
+    while i < len(outlines):
+        opcode = outlines[i][0:6]
+        opcode = int(opcode, 2)
+
+        if(opcode == 31):
+            xopcode1 = outlines[i][22:31]
+            xopcode1 = int(xopcode1, 2)
+            xopcode2 = outlines[i][21:31]
+            xopcode2 = int(xopcode2, 2)
+
+            if(xopcode1 == 266):  # add
+                rt = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[rt] = int(registers[ra]) + int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode1 == 40):  # subf
+                rt = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[rt] = int(registers[rb]) - int(registers[ra])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 28):  # and
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = int(registers[rs]) & int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 444):  # or
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = int(registers[rs]) | int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 316):  # xor
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = int(registers[rs]) ^ int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 476):  # nand
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = ~(int(registers[rs]) & int(registers[rb]))
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 0):  # compare
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                a = registers[ra]
+                b = registers[rb]
+                if(a < b):
+                    C7 = '0b1000'
+                elif(a > b):
+                    C7 = '0b0100'
+                elif(a == b):
+                    C7 = '0b0010'
+                print 'Instruction' + str(i)
+                printregs()
+                print 'CR7 : ' + C7
+                print "\n"
+                i += 1
+
+        if(opcode == 13):  # load address
+            rt = 'R' + str(int(outlines[i][6:11], 2))
+            disp = int(outlines[i][16:32], 2)
+            faddr = int('10000000', 16) + disp
+            registers[rt] = faddr
+            print 'Instruction' + str(i)
+            printregs()
+            i += 1
+
+        if(opcode == 58):  # load double
+            rt = 'R' + str(int(outlines[i][6:11], 2))
+            ra = 'R' + str(int(outlines[i][11:16], 2))
+            ds = int(outlines[i][16:30], 2)
+            addk = hex(registers[ra] + ds)
+            registers[rt] = initializedMap[addk]
+            print 'Instruction' + str(i)
+            printregs()
+            i += 1
+
+        if(opcode == 62):  # store double
+            rt = 'R' + str(int(outlines[i][6:11], 2))
+            ra = 'R' + str(int(outlines[i][11:16], 2))
+            ds = int(outlines[i][16:30], 2)
+            addk = hex(registers[ra] + ds)
+            initializedMap[addk] = registers[rt]
+            print 'Instruction' + str(i)
+            printregs()
+            i += 1
+
+        if(opcode == 19):  # Branch
+            bi = int(outlines[i][11:16], 2)
+            bd = int(outlines[i][16:30], 2)
+            jump = bd / 4
+            print 'Instruction' + str(i)
+            print 'Branch to instruction ' + str(jump)
+            print "\n"
+            if(bi == 28):  # branch less than
+                if(C7 == '0b1000'):
+                    i = jump
+            if(bi == 29):  # branch greater than
+                if(C7 == '0b0100'):
+                    i = jump
+            if(bi == 30):  # branch  equal to
+                if(C7 == '0b0010'):
+                    i = jump
+
+    print labelsMap
+    print initializedMap

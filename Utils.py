@@ -18,10 +18,17 @@ class Utils(object):
         x = int(s)                              # Convert string to integer, store in x.
         if x >= 0:                              # If not negative, use python's binary converter and strip the "0b"
             ret = str(bin(x))[2:]
-            return ("0"*(n-len(ret)) + ret)     # Pad with 0s to length.
+            if(len(ret) <= n):
+                return ("0" * (n - len(ret)) + ret)  # Pad with 0s to length.
+            else:
+                return (ret[0:n])
         else:
             ret = 2**n - abs(x)                 # If negative, convert to 2s complement integer
-            return bin(ret)[2:]                 # Convert to binary using python's binary converter and strip the "0b"
+            ret = bin(ret)[2:]                 # Convert to binary using python's binary converter and strip the "0b"
+            if(len(ret) <= n):
+                return ("0" * (n - len(ret)) + ret)  # Pad with 0s to length.
+            else:
+                return (ret[0:n])
 
     @staticmethod
     def bs2hex(v):
@@ -32,4 +39,4 @@ class Utils(object):
             Example Input: bs2hex("1010000010001111")
             Example Output: "a08f" """
 
-        return(hex(int(v,2))[2:])
+        return(hex(int(v, 2))[2:])

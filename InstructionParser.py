@@ -75,32 +75,6 @@ class DTypeInstruction(BaseInstruction):
             return operator, (operands[0], operands[1], operands[2])
 
 
-class D2TypeInstruction(BaseInstruction):
-    def __init__(self):
-        D2TypeRegex = r'(\w+)\s+(R\d+)\W\s+(\d+)\W(R\d+)\W'  # Change the regex
-        # r'(\w+)\s+(R\d+)\W\s+(\d+)\(R\d+\)'
-        super(D2TypeInstruction, self).__init__(D2TypeRegex)
-
-    def parseInstr(self, instr):
-        operator, operands = super(D2TypeInstruction, self).parseInstr(instr)
-        if operator == 'lwz':
-            return operator, (operands[0], operands[2], operands[1])
-        if operator == 'stw':
-            return operator, (operands[0], operands[2], operands[1])
-        if operator == 'stwu':
-            return operator, (operands[0], operands[2], operands[1])
-        if operator == 'lhz':
-            return operator, (operands[0], operands[2], operands[1])
-        if operator == 'lha':
-            return operator, (operands[0], operands[2], operands[1])
-        if operator == 'sth':
-            return operator, (operands[0], operands[2], operands[1])
-        if operator == 'lbz':
-            return operator, (operands[0], operands[2], operands[1])
-        if operator == 'stb':
-            return operator, (operands[0], operands[2], operands[1])
-
-
 class XSTypeInstruction(BaseInstruction):
     def __init__(self):
         XSTypeRegex = r'(\w+)\s+(R\d+)\W\s+(R\d+)\W\s+(\d+)'
@@ -136,6 +110,91 @@ class MTypeInstruction(BaseInstruction):
             return operator, (operands[1], operands[0], operands[2], operands[3], operands[4], '0')
 
 
+class BTypeInstruction(BaseInstruction):
+    def __init__(self):
+        BTypeRegex = r'(\w+)\s+(\d+)\W\s+(\d+)\W\s+(\w+)'
+        super(BTypeInstruction, self).__init__(BTypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(BTypeInstruction, self).parseInstr(instr)
+        if operator == 'bc':
+            return operator, (operands[0], operands[1], operands[2], '0', '0')
+        if operator == 'bca':
+            return operator, (operands[0], operands[1], operands[2], '1', '0')
+
+#################################################################################
+# Following are custom defined parsing formats
+#################################################################################
+
+
+class X2TypeInstruction(BaseInstruction):
+    def __init__(self):
+        X2TypeRegex = r'(\w+)\s+(R\d+)\W\s+(R\d+)'
+        super(X2TypeInstruction, self).__init__(X2TypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(X2TypeInstruction, self).parseInstr(instr)
+        if operator == 'extsw':
+            return operator, (operands[1], operands[0], '0', '986', '0')
+
+
+class X3TypeInstruction(BaseInstruction):
+    def __init__(self):
+        X3TypeRegex = r'(\w+)\s+(\d+)\W\s+(\d+)\W\s+(R\d+)\W\s+(R\d+)'
+        super(X3TypeInstruction, self).__init__(X3TypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(X3TypeInstruction, self).parseInstr(instr)
+        if operator == 'cmp':
+            return operator, ('0', operands[2], operands[3], '0', '0')
+
+
+class D2TypeInstruction(BaseInstruction):
+    def __init__(self):
+        D2TypeRegex = r'(\w+)\s+(R\d+)\W\s+(\d+)\W(R\d+)\W'
+        super(D2TypeInstruction, self).__init__(D2TypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(D2TypeInstruction, self).parseInstr(instr)
+        if operator == 'lwz':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'stw':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'stwu':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'lhz':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'lha':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'sth':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'lbz':
+            return operator, (operands[0], operands[2], operands[1])
+        if operator == 'stb':
+            return operator, (operands[0], operands[2], operands[1])
+
+
+class D3TypeInstruction(BaseInstruction):
+    def __init__(self):
+        D3TypeRegex = r'(\w+)\s+(\d+)\W\s+(\d+)\W\s+(R\d+)\W\s+(\d+)'
+        super(D3TypeInstruction, self).__init__(D3TypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(D3TypeInstruction, self).parseInstr(instr)
+        if operator == 'cmpi':
+            return operator, ('0', operands[2], operands[3])
+
+
+class LATypeInstruction(BaseInstruction):
+    def __init__(self):
+        LATypeRegex = r'(\w+)\s+(R\d+)\W\s+(\w+)'
+        super(LATypeInstruction, self).__init__(LATypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(LATypeInstruction, self).parseInstr(instr)
+        return operator, (operands[0], '0', operands[1])
+
+
 class InstructionParser:
     def __init__(self, labelsMap={}):
         self.instrObjMap = {
@@ -143,9 +202,17 @@ class InstructionParser:
             'X-TYPE': XTypeInstruction,
             'D-TYPE': DTypeInstruction,
             'XS-TYPE': XSTypeInstruction,
-            'D2-TYPE': D2TypeInstruction,
             'DS-TYPE': DSTypeInstruction,
-            'M-TYPE': MTypeInstruction
+            'M-TYPE': MTypeInstruction,
+            'B-TYPE': BTypeInstruction,
+
+            # Following are custom defined parsing formats which ultimately
+            # result in standard encoding formats only
+            'D2-TYPE': D2TypeInstruction,
+            'D3-TYPE': D3TypeInstruction,
+            'X2-TYPE': X2TypeInstruction,
+            'X3-TYPE': X3TypeInstruction,
+            'LA-TYPE': LATypeInstruction
 
         }
 
@@ -183,6 +250,15 @@ class InstructionParser:
         instrObj = self.instrObjMap[instrType]()
         operator, operands = instrObj.parseInstr(instr)
 
+        operands = list(operands)
+        if operator == 'bc':
+            operands[2] = str(int(self.labelsMap[operands[2]], 16) - int('400000', 16))
+        if operator == 'bca':
+            operands[2] = str(int(self.labelsMap[operands[2]], 16) - int('400000', 16))
+        if operator == 'la':
+            operands[2] = str(int(self.labelsMap[operands[2]], 16) - int('10000000', 16))
+        operands = tuple(operands)
+
         if label:
             operands = list(operands)
             if label not in self.labelsMap:
@@ -212,16 +288,28 @@ class InstructionParser:
             instrFieldSizes = (6, 5, 5, 16)
         if instrType == 'XS-TYPE':
             instrFieldSizes = (6, 5, 5, 5, 9, 1, 1)
-        if instrType == 'D2-TYPE':
-            instrFieldSizes = (6, 5, 5, 16)
         if instrType == 'DS-TYPE':
             instrFieldSizes = (6, 5, 5, 14, 2)
         if instrType == 'M-TYPE':
             instrFieldSizes = (6, 5, 5, 5, 5, 5, 1)
+        if instrType == 'B-TYPE':
+            instrFieldSizes = (6, 5, 5, 14, 1, 1)
+
+        # Following are for custom defined parsing formats
+        if instrType == 'X2-TYPE':
+            instrFieldSizes = (6, 5, 5, 5, 10, 1)
+        if instrType == 'X3-TYPE':
+            instrFieldSizes = (6, 5, 5, 5, 10, 1)
+        if instrType == 'D2-TYPE':
+            instrFieldSizes = (6, 5, 5, 16)
+        if instrType == 'D3-TYPE':
+            instrFieldSizes = (6, 5, 5, 16)
+        if instrType == 'LA-TYPE':
+            instrFieldSizes = (6, 5, 5, 16)
 
         opcode = self.instrLookup.opcode(operator)
         convertedOpcode = formatFunc(opcode, instrFieldSizes[0])
-        operands = map(lambda op: op.strip('R,'), operands)
+        operands = map(lambda op: op.strip('R'), operands)
         convertedOperands = map(lambda (i, s): formatFunc(s, instrFieldSizes[i + 1]), enumerate(operands))
 
         convertedOutput = convertedOpcode + ''.join(convertedOperands)

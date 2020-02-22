@@ -1,4 +1,3 @@
-
 import sys
 import getopt
 
@@ -22,14 +21,117 @@ class Assembler(object):
 
     def buildLabelsMap(self, lines):
         labelsMap = {}
+        initializedMap = {}
 
-        for lineNo, line in enumerate(lines):
-            split = line.split(':', 1)
-            if len(split) > 1:
+        text_base_address = int('400000', 16)
+        offset = 0
+        data_base_address = int('10000000', 16)
+        currentp = 0
+
+        flag = 0
+        if lines[0] == '.text':
+            for i in range(0, len(lines) - 1):
+                if lines[i] == '.text':
+                    continue
+                if lines[i] == '.data':
+                    flag = i
+                    break
+                split = lines[i].split(':', 1)
+                if len(split) > 1:
+                    label = split[0]
+                    labelsMap[label] = hex(text_base_address + (4 * offset))
+                else:
+                    offset = offset + 1
+
+            for i in range(flag, len(lines)):
+                if lines[i] == '.data':
+                    continue
+                split = lines[i].split(':', 1)
                 label = split[0]
-                labelsMap[label] = lineNo
+                y = split[1].split()
+                if len(y) > 2:
+                    y[1] = y[1].strip('\'')
+                    y[len(y) - 1] = y[len(y) - 1].strip('\'')
+                    value = ''
+                    for j in range(1, len(y)):
+                        value = value + y[j] + ' '
+                    dataval = value[0:len(dataval) - 2]
+                else:
+                    dataval = y[1]
 
-        return labelsMap
+                if y[0] == '.word':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += 4
+
+                if y[0] == '.asciiz':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += len(dataval)
+
+        if lines[0] == '.data':
+            for i in range(0, len(lines) - 1):
+                if lines[i] == '.data':
+                    continue
+                if lines[i] == '.text':
+                    flag = i
+                    break
+                split = lines[i].split(':', 1)
+                label = split[0]
+                y = split[1].split()
+                if len(y) > 2:
+                    y[1] = y[1].strip('\'')
+                    y[len(y) - 1] = y[len(y) - 1].strip('\'')
+                    value = ''
+                    for j in range(1, len(y)):
+                        value = value + y[j] + ' '
+                    dataval = value[0:len(dataval) - 2]
+                else:
+                    dataval = y[1]
+
+                if y[0] == '.word':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += 4
+
+                if y[0] == '.halfword':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += 2
+
+                if y[0] == '.double':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += 8
+
+                if y[0] == '.byte':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += 1
+
+                if y[0] == '.asciiz':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += len(dataval)
+
+            for i in range(flag, len(lines)):
+                if lines[i] == '.text':
+                    continue
+                split = lines[i].split(':', 1)
+                if len(split) > 1:
+                    label = split[0]
+                    labelsMap[label] = hex(text_base_address + (4 * offset))
+                else:
+                    offset = offset + 1
+
+        return labelsMap, initializedMap
 
     def mergeInputFiles(self):
         outlines = []
@@ -51,10 +153,13 @@ class Assembler(object):
         lines = map(lambda line: self.stripComments(line.rstrip()), inlines)  # get rid of \n whitespace at end of line
         lines = filter(lambda line: line, lines)
 
-        labelsMap = self.buildLabelsMap(lines)
+        # print lines
+
+        labelsMap, initializedMap = self.buildLabelsMap(lines)
         parser = InstructionParser(labelsMap=labelsMap)
 
         outlines = map(lambda line: parser.convert(line, format='binary'), lines)
+        outlines = filter(lambda line: line, outlines)
 
         with open(self.outfilename, 'w') as of:
             of.write('v0.1 raw\n')
@@ -63,19 +168,12 @@ class Assembler(object):
                 of.write("\n")
         of.close()
 
+        return labelsMap, initializedMap, outlines
+
 
 if __name__ == "__main__":
     print 'Number of arguments:', len(sys.argv), 'arguments.'
     print 'Argument List:', str(sys.argv)
-
-    # try:
-    # 	opts, args = getopt.getopt(sys.argv[1:], "hi:o:", ["ifile=","ofile="])
-# except getopt.GetoptError:
-    # 	print 'Usage: python Assembler.py -i <inputfile.asm>[ <inputfile2.asm> <inputfile3.asm> ...] -o <outputfile.hex>'
-    # 	sys.exit(2)
-    #
-    # inputfiles = map(lambda t: t[1], filter(lambda (opt, arg): opt == '-i', opts))
-    # outputfile = map(lambda t: t[1], filter(lambda (opt, arg): opt == '-o', opts))
 
     if (len(sys.argv) < 4) or ('-i' not in sys.argv) or ('-o' not in sys.argv):
         print('Usage: python Assembler.py -i <inputfile.asm>[ <inputfile2.asm> <inputfile3.asm> ...] -o <outputfile.hex>')
@@ -85,4 +183,149 @@ if __name__ == "__main__":
     outputfile = sys.argv[sys.argv.index('-o') + 1]
 
     assembler = Assembler(inputfiles, outputfile)
-    assembler.AssemblyToHex()
+    labelsMap, initializedMap, outlines = assembler.AssemblyToHex()
+
+    print labelsMap
+    print initializedMap
+
+    def printregs():
+        for i in range(0, 8):
+            lineo = ''
+            for j in range(0, 4):
+                lineo += 'R' + str(i + (j * 8)) + ':' + str(registers['R' + str(i + (j * 8))]) + '\t\t'
+            print lineo
+        print "\n"
+
+    registers = {}  # set of registers
+
+    C7 = '0000'  # Compare register's last 4 bits
+
+    for i in range(0, 32):
+        registers['R' + str(i)] = 0
+
+    printregs()
+
+    i = 0
+    while i < len(outlines):
+        opcode = outlines[i][0:6]
+        opcode = int(opcode, 2)
+
+        if(opcode == 31):
+            xopcode1 = outlines[i][22:31]
+            xopcode1 = int(xopcode1, 2)
+            xopcode2 = outlines[i][21:31]
+            xopcode2 = int(xopcode2, 2)
+
+            if(xopcode1 == 266):  # add
+                rt = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[rt] = int(registers[ra]) + int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode1 == 40):  # subf
+                rt = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[rt] = int(registers[rb]) - int(registers[ra])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 28):  # and
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = int(registers[rs]) & int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 444):  # or
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = int(registers[rs]) | int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 316):  # xor
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = int(registers[rs]) ^ int(registers[rb])
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 476):  # nand
+                rs = 'R' + str(int(outlines[i][6:11], 2))
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                registers[ra] = ~(int(registers[rs]) & int(registers[rb]))
+                print 'Instruction' + str(i)
+                printregs()
+                i += 1
+            elif(xopcode2 == 0):  # compare
+                ra = 'R' + str(int(outlines[i][11:16], 2))
+                rb = 'R' + str(int(outlines[i][16:21], 2))
+                a = registers[ra]
+                b = registers[rb]
+                if(a < b):
+                    C7 = '0b1000'
+                elif(a > b):
+                    C7 = '0b0100'
+                elif(a == b):
+                    C7 = '0b0010'
+                print 'Instruction' + str(i)
+                printregs()
+                print 'CR7 : ' + C7
+                print "\n"
+                i += 1
+
+        if(opcode == 13):  # load address
+            rt = 'R' + str(int(outlines[i][6:11], 2))
+            disp = int(outlines[i][16:32], 2)
+            faddr = int('10000000', 16) + disp
+            registers[rt] = faddr
+            print 'Instruction' + str(i)
+            printregs()
+            i += 1
+
+        if(opcode == 58):  # load double
+            rt = 'R' + str(int(outlines[i][6:11], 2))
+            ra = 'R' + str(int(outlines[i][11:16], 2))
+            ds = int(outlines[i][16:30], 2)
+            addk = hex(registers[ra] + ds)
+            registers[rt] = initializedMap[addk]
+            print 'Instruction' + str(i)
+            printregs()
+            i += 1
+
+        if(opcode == 62):  # store double
+            rt = 'R' + str(int(outlines[i][6:11], 2))
+            ra = 'R' + str(int(outlines[i][11:16], 2))
+            ds = int(outlines[i][16:30], 2)
+            addk = hex(registers[ra] + ds)
+            initializedMap[addk] = registers[rt]
+            print 'Instruction' + str(i)
+            printregs()
+            i += 1
+
+        if(opcode == 19):  # Branch
+            bi = int(outlines[i][11:16], 2)
+            bd = int(outlines[i][16:30], 2)
+            jump = bd / 4
+            print 'Instruction' + str(i)
+            print 'Branch to instruction ' + str(jump)
+            print "\n"
+            if(bi == 28):  # branch less than
+                if(C7 == '0b1000'):
+                    i = jump
+            if(bi == 29):  # branch greater than
+                if(C7 == '0b0100'):
+                    i = jump
+            if(bi == 30):  # branch  equal to
+                if(C7 == '0b0010'):
+                    i = jump
+
+    print labelsMap
+    print initializedMap

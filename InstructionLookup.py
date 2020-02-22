@@ -21,6 +21,9 @@ class InstructionLookup:
                 'ori': 24,
                 'xori': 26
             },
+            'LA-TYPE': {
+                'la': 13
+            },
             'XS-TYPE': {
                 'sradi': 31
             },
@@ -34,12 +37,25 @@ class InstructionLookup:
                 'lbz': 34,
                 'stb': 38
             },
+            'D3-TYPE': {
+                'cmpi': 11
+            },
             'DS-TYPE': {
                 'ld': 58,
                 'std': 62
             },
             'M-TYPE': {
                 'rlwinm': 21
+            },
+            'X2-TYPE': {
+                'extsw': 31
+            },
+            'X3-TYPE': {
+                'cmp': 31
+            },
+            'B-TYPE': {
+                'bc': 19,
+                'bca': 19
             }
 
         }

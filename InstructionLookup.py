@@ -56,6 +56,11 @@ class InstructionLookup:
             'B-TYPE': {
                 'bc': 19,
                 'bca': 19
+            },
+            'I-TYPE': {
+                'b': 18,
+                'ba': 18,
+                'bl': 18
             }
 
         }

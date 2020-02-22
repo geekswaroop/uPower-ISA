@@ -31,6 +31,8 @@ rlwinm R11, R14, 5, 6, 7
 extsw R14, R5
 bc 7, 14, main
 bca 7, 14, loop
+b main
+bl loop
 cmp 7, 1, R4, R14
 cmpi 7, 1, R5, 15
 la R7, zig

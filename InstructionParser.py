@@ -122,6 +122,21 @@ class BTypeInstruction(BaseInstruction):
         if operator == 'bca':
             return operator, (operands[0], operands[1], operands[2], '1', '0')
 
+
+class ITypeInstruction(BaseInstruction):
+    def __init__(self):
+        ITypeRegex = r'(\w+)\s+(\w+)'
+        super(ITypeInstruction, self).__init__(ITypeRegex)
+
+    def parseInstr(self, instr):
+        operator, operands = super(ITypeInstruction, self).parseInstr(instr)
+        if operator == 'b':
+            return operator, (operands[0], '0', '0')
+        if operator == 'ba':
+            return operator, (operands[0], '1', '0')
+        if operator == 'bl':
+            return operator, (operands[0], '0', '1')
+
 #################################################################################
 # Following are custom defined parsing formats
 #################################################################################
@@ -205,7 +220,7 @@ class InstructionParser:
             'DS-TYPE': DSTypeInstruction,
             'M-TYPE': MTypeInstruction,
             'B-TYPE': BTypeInstruction,
-
+            'I-TYPE': ITypeInstruction,
             # Following are custom defined parsing formats which ultimately
             # result in standard encoding formats only
             'D2-TYPE': D2TypeInstruction,
@@ -255,6 +270,12 @@ class InstructionParser:
             operands[2] = str(int(self.labelsMap[operands[2]], 16) - int('400000', 16))
         if operator == 'bca':
             operands[2] = str(int(self.labelsMap[operands[2]], 16) - int('400000', 16))
+        if operator == 'b':
+            operands[0] = str(int(self.labelsMap[operands[0]], 16) - int('400000', 16))
+        if operator == 'ba':
+            operands[0] = str(int(self.labelsMap[operands[0]], 16) - int('400000', 16))
+        if operator == 'bl':
+            operands[0] = str(int(self.labelsMap[operands[0]], 16) - int('400000', 16))
         if operator == 'la':
             operands[2] = str(int(self.labelsMap[operands[2]], 16) - int('10000000', 16))
         operands = tuple(operands)
@@ -294,6 +315,8 @@ class InstructionParser:
             instrFieldSizes = (6, 5, 5, 5, 5, 5, 1)
         if instrType == 'B-TYPE':
             instrFieldSizes = (6, 5, 5, 14, 1, 1)
+        if instrType == 'I-TYPE':
+            instrFieldSizes = (6, 24, 1, 1)
 
         # Following are for custom defined parsing formats
         if instrType == 'X2-TYPE':

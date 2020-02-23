@@ -1,5 +1,5 @@
 import re
-
+import sys
 from InstructionLookup import InstructionLookup
 from Utils import Utils
 
@@ -260,7 +260,8 @@ class InstructionParser:
         operator = instr.split(' ')[0]
         instrType = self.instrLookup.type(operator)
         if not instrType:
-            return '', '', None
+            # return '', '', None
+            sys.exit("Undefined Label")
 
         instrObj = self.instrObjMap[instrType]()
         operator, operands = instrObj.parseInstr(instr)

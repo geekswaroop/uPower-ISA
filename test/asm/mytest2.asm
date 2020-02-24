@@ -6,6 +6,7 @@ y: .word 0
 .text
 
 main:
+addi R1, R2, -5
 la R4, x
 la R5, zig
 ld R6, 0(R4)

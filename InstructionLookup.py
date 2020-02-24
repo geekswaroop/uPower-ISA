@@ -61,11 +61,7 @@ class InstructionLookup:
                 'b': 18,
                 'ba': 18,
                 'bl': 18
-            },
-            'DNeg-TYPE': {
-                'addni': 14
             }
-
         }
 
     def type(self, operator):

@@ -357,6 +357,16 @@ if __name__ == "__main__":
             printregs()
             i += 1
 
+        if(opcode == 14):  # addi
+            rt = 'R' + str(int(outlines[i][6:11], 2))
+            ra = 'R' + str(int(outlines[i][11:16], 2))
+            imm = outlines[i][16:32]
+            val = (-1 * int(imm[0]) * pow(2, 15)) + (int(imm[1:16], 2))
+            registers[rt] = int(registers[ra]) + val
+            print 'Instruction - ' + str(i)
+            printregs()
+            i += 1
+
         if(opcode == 19):  # Branch
             bi = int(outlines[i][11:16], 2)
             bd = int(outlines[i][16:30], 2)

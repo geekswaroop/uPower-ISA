@@ -5,7 +5,7 @@ zig: .word 8
 
 .text
 main:
-addni R11, R14, -1
+addi R11, R14, -15
 add R1, R4, R5
 subf R6, R7, R8
 and R1, R4, R5

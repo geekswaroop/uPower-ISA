@@ -58,7 +58,7 @@ class XTypeInstruction(BaseInstruction):
 
 class DTypeInstruction(BaseInstruction):
     def __init__(self):
-        DTypeRegex = r'(\w+)\s+(R\d+)\W\s+(R\d+)\W\s+(\d+)'
+        DTypeRegex = r'(\w+)\s+(R\d+)\W\s+(R\d+)\W\s+(\S+)'
         super(DTypeInstruction, self).__init__(DTypeRegex)
 
     def parseInstr(self, instr):
@@ -140,17 +140,6 @@ class ITypeInstruction(BaseInstruction):
 #################################################################################
 # Following are custom defined parsing formats
 #################################################################################
-
-
-class DNegTypeInstruction(BaseInstruction):
-    def __init__(self):
-        DNegTypeRegex = r'(\w+)\s+(R\d+)\W\s+(R\d+)\W\s+\W(\d+)'
-        super(DNegTypeInstruction, self).__init__(DNegTypeRegex)
-
-    def parseInstr(self, instr):
-        operator, operands = super(DNegTypeInstruction, self).parseInstr(instr)
-        if operator == 'addni':
-            return operator, (operands[0], operands[1], '-' + operands[2])
 
 
 class X2TypeInstruction(BaseInstruction):
@@ -238,8 +227,7 @@ class InstructionParser:
             'D3-TYPE': D3TypeInstruction,
             'X2-TYPE': X2TypeInstruction,
             'X3-TYPE': X3TypeInstruction,
-            'LA-TYPE': LATypeInstruction,
-            'DNeg-TYPE': DNegTypeInstruction
+            'LA-TYPE': LATypeInstruction
 
         }
 
@@ -339,8 +327,6 @@ class InstructionParser:
         if instrType == 'D2-TYPE':
             instrFieldSizes = (6, 5, 5, 16)
         if instrType == 'D3-TYPE':
-            instrFieldSizes = (6, 5, 5, 16)
-        if instrType == 'DNeg-TYPE':
             instrFieldSizes = (6, 5, 5, 16)
         if instrType == 'LA-TYPE':
             instrFieldSizes = (6, 5, 5, 16)

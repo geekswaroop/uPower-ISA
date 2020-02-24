@@ -62,8 +62,33 @@ class Assembler(object):
                 if y[0] == '.word':
                     addressc = hex(data_base_address + currentp)
                     labelsMap[label] = addressc
+                    arr = dataval.split()
+                    if len(arr) > 1:
+                        for i in range(0, len(arr)):
+                            initializedMap[addressc] = arr[i].strip(',')
+                            addressc = hex(int(addressc, 16) + 4)
+                        currentp += (4 * len(arr))
+                    else:
+                        initializedMap[addressc] = dataval
+                        currentp += 4
+
+                if y[0] == '.halfword':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
                     initializedMap[addressc] = dataval
-                    currentp += 4
+                    currentp += 2
+
+                if y[0] == '.double':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += 8
+
+                if y[0] == '.byte':
+                    addressc = hex(data_base_address + currentp)
+                    labelsMap[label] = addressc
+                    initializedMap[addressc] = dataval
+                    currentp += 1
 
                 if y[0] == '.asciiz':
                     addressc = hex(data_base_address + currentp)
@@ -87,15 +112,22 @@ class Assembler(object):
                     value = ''
                     for j in range(1, len(y)):
                         value = value + y[j] + ' '
-                    dataval = value[0:len(dataval) - 2]
+                    dataval = value[0:len(value) - 1]
                 else:
                     dataval = y[1]
 
                 if y[0] == '.word':
                     addressc = hex(data_base_address + currentp)
                     labelsMap[label] = addressc
-                    initializedMap[addressc] = dataval
-                    currentp += 4
+                    arr = dataval.split()
+                    if len(arr) > 1:
+                        for i in range(0, len(arr)):
+                            initializedMap[addressc] = arr[i].strip(',')
+                            addressc = hex(int(addressc, 16) + 4)
+                        currentp += (4 * len(arr))
+                    else:
+                        initializedMap[addressc] = dataval
+                        currentp += 4
 
                 if y[0] == '.halfword':
                     addressc = hex(data_base_address + currentp)

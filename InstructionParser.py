@@ -260,8 +260,8 @@ class InstructionParser:
         operator = instr.split(' ')[0]
         instrType = self.instrLookup.type(operator)
         if not instrType:
-            # return '', '', None
-            sys.exit("Undefined Label")
+            return '', '', None
+            #sys.exit("Undefined Label")
 
         instrObj = self.instrObjMap[instrType]()
         operator, operands = instrObj.parseInstr(instr)

@@ -1,7 +1,7 @@
 .data
-x: .word 5
-y: .asciiz 'I am happy'
-zig: .word 6
+x: .word 5, 6, 7,
+y: .asciiz 'Hello World'
+zig: .word 8
 
 .text
 main:

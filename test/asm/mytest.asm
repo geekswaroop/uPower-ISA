@@ -1,10 +1,11 @@
 .data
-x: .word 5, 6, 7,
+x: .word -5, 6, 7,
 y: .asciiz 'Hello World'
 zig: .word 8
 
 .text
 main:
+addni R11, R14, -1
 add R1, R4, R5
 subf R6, R7, R8
 and R1, R4, R5

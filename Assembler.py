@@ -217,5 +217,19 @@ if __name__ == "__main__":
     assembler = Assembler(inputfiles, outputfile)
     labelsMap, initializedMap, outlines = assembler.AssemblyToHex()
 
-    print labelsMap
-    print initializedMap
+    def printmaps():
+        print "\n"
+        print "LABELS MAP"
+        for key in sorted(labelsMap.keys()):
+            print key + ":" + str(labelsMap[key])
+        print "\n"
+        print "DATA MAP"
+        for key in sorted(initializedMap.keys()):
+            print key + ":" + str(initializedMap[key])
+        print "\n"
+
+    printmaps()
+
+    ##################################################################################################
+    # END OF ASSEMBLER WHICH RETURNS 2 TABLES AND ARRAY OF BINARY LINES(OUTLINE)
+    ##################################################################################################

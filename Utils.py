@@ -26,7 +26,7 @@ class Utils(object):
             ret = 2**n - abs(x)                 # If negative, convert to 2s complement integer
             ret = bin(ret)[2:]                 # Convert to binary using python's binary converter and strip the "0b"
             if(len(ret) <= n):
-                return ("0" * (n - len(ret)) + ret)  # Pad with 0s to length.
+                return ("1" * (n - len(ret)) + ret)  # Pad with 0s to length.
             else:
                 return (ret[0:n])
 

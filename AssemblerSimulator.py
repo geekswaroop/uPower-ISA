@@ -217,10 +217,25 @@ if __name__ == "__main__":
     assembler = Assembler(inputfiles, outputfile)
     labelsMap, initializedMap, outlines = assembler.AssemblyToHex()
 
-    print labelsMap
-    print initializedMap
+    def printmaps():
+        print "\n"
+        print "LABELS MAP"
+        for key in sorted(labelsMap.keys()):
+            print key + ":" + str(labelsMap[key])
+        print "\n"
+        print "DATA MAP"
+        for key in sorted(initializedMap.keys()):
+            print key + ":" + str(initializedMap[key])
+        print "\n"
+
+    printmaps()
+
+    ##################################################################################################
+    # END OF ASSEMBLER WHICH RETURNS 2 TABLES AND ARRAY OF BINARY LINES(OUTLINE)
+    ##################################################################################################
 
     def printregs():
+        print "REGISTERS"
         for i in range(0, 8):
             lineo = ''
             for j in range(0, 4):
@@ -232,7 +247,7 @@ if __name__ == "__main__":
 
     C7 = '0000'  # Compare register's last 4 bits
 
-    for i in range(0, 32):
+    for i in range(0, 32):  # initializing all regs to zero
         registers['R' + str(i)] = 0
 
     printregs()
@@ -253,7 +268,7 @@ if __name__ == "__main__":
                 ra = 'R' + str(int(outlines[i][11:16], 2))
                 rb = 'R' + str(int(outlines[i][16:21], 2))
                 registers[rt] = int(registers[ra]) + int(registers[rb])
-                print 'Instruction' + str(i)
+                print 'Instruction - ' + str(i)
                 printregs()
                 i += 1
             elif(xopcode1 == 40):  # subf
@@ -261,7 +276,7 @@ if __name__ == "__main__":
                 ra = 'R' + str(int(outlines[i][11:16], 2))
                 rb = 'R' + str(int(outlines[i][16:21], 2))
                 registers[rt] = int(registers[rb]) - int(registers[ra])
-                print 'Instruction' + str(i)
+                print 'Instruction - ' + str(i)
                 printregs()
                 i += 1
             elif(xopcode2 == 28):  # and
@@ -269,7 +284,7 @@ if __name__ == "__main__":
                 ra = 'R' + str(int(outlines[i][11:16], 2))
                 rb = 'R' + str(int(outlines[i][16:21], 2))
                 registers[ra] = int(registers[rs]) & int(registers[rb])
-                print 'Instruction' + str(i)
+                print 'Instruction - ' + str(i)
                 printregs()
                 i += 1
             elif(xopcode2 == 444):  # or
@@ -277,7 +292,7 @@ if __name__ == "__main__":
                 ra = 'R' + str(int(outlines[i][11:16], 2))
                 rb = 'R' + str(int(outlines[i][16:21], 2))
                 registers[ra] = int(registers[rs]) | int(registers[rb])
-                print 'Instruction' + str(i)
+                print 'Instruction - ' + str(i)
                 printregs()
                 i += 1
             elif(xopcode2 == 316):  # xor
@@ -285,7 +300,7 @@ if __name__ == "__main__":
                 ra = 'R' + str(int(outlines[i][11:16], 2))
                 rb = 'R' + str(int(outlines[i][16:21], 2))
                 registers[ra] = int(registers[rs]) ^ int(registers[rb])
-                print 'Instruction' + str(i)
+                print 'Instruction - ' + str(i)
                 printregs()
                 i += 1
             elif(xopcode2 == 476):  # nand
@@ -293,7 +308,7 @@ if __name__ == "__main__":
                 ra = 'R' + str(int(outlines[i][11:16], 2))
                 rb = 'R' + str(int(outlines[i][16:21], 2))
                 registers[ra] = ~(int(registers[rs]) & int(registers[rb]))
-                print 'Instruction' + str(i)
+                print 'Instruction - ' + str(i)
                 printregs()
                 i += 1
             elif(xopcode2 == 0):  # compare
@@ -307,7 +322,7 @@ if __name__ == "__main__":
                     C7 = '0b0100'
                 elif(a == b):
                     C7 = '0b0010'
-                print 'Instruction' + str(i)
+                print 'Instruction - ' + str(i)
                 printregs()
                 print 'CR7 : ' + C7
                 print "\n"
@@ -318,7 +333,7 @@ if __name__ == "__main__":
             disp = int(outlines[i][16:32], 2)
             faddr = int('10000000', 16) + disp
             registers[rt] = faddr
-            print 'Instruction' + str(i)
+            print 'Instruction - ' + str(i)
             printregs()
             i += 1
 
@@ -328,7 +343,7 @@ if __name__ == "__main__":
             ds = int(outlines[i][16:30], 2)
             addk = hex(registers[ra] + ds)
             registers[rt] = initializedMap[addk]
-            print 'Instruction' + str(i)
+            print 'Instruction - ' + str(i)
             printregs()
             i += 1
 
@@ -338,7 +353,7 @@ if __name__ == "__main__":
             ds = int(outlines[i][16:30], 2)
             addk = hex(registers[ra] + ds)
             initializedMap[addk] = registers[rt]
-            print 'Instruction' + str(i)
+            print 'Instruction - ' + str(i)
             printregs()
             i += 1
 
@@ -347,17 +362,21 @@ if __name__ == "__main__":
             bd = int(outlines[i][16:30], 2)
             jump = bd / 4
             print 'Instruction' + str(i)
-            print 'Branch to instruction ' + str(jump)
-            print "\n"
-            if(bi == 28):  # branch less than
-                if(C7 == '0b1000'):
-                    i = jump
-            if(bi == 29):  # branch greater than
-                if(C7 == '0b0100'):
-                    i = jump
-            if(bi == 30):  # branch  equal to
-                if(C7 == '0b0010'):
-                    i = jump
+            if(bi == 28 and C7 == '0b1000'):  # branch less than
+                print 'Branch to instruction - ' + str(jump)
+                print "\n"
+                i = jump
+            elif(bi == 29 and C7 == '0b0100'):  # branch greater than
+                print 'Branch to instruction - ' + str(jump)
+                print "\n"
+                i = jump
+            elif(bi == 30 and C7 == '0b0010'):  # branch  equal to
+                print 'Branch to instruction - ' + str(jump)
+                print "\n"
+                i = jump
+            else:
+                print 'No Branch'
+                print "\n"
+                i += 1
 
-    print labelsMap
-    print initializedMap
+    printmaps()
